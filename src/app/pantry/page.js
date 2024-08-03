@@ -3,10 +3,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "../../config/firebase.js";
 import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import Image from "next/image";
+import { useUser } from "@/app/UserContext/page.js"; // Adjust the path accordingly
 
 const Pantry = () => {
+  const user = useUser(); // Correctly call the hook
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState({
     name: "",
@@ -25,24 +28,40 @@ const Pantry = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [saveMessage, setSaveMessage] = useState("");
   const router = useRouter();
+  const auth = getAuth();
+  const userId = auth.currentUser?.uid;
 
   useEffect(() => {
+    if (!userId) {
+      router.push('/auth_login');
+      return;
+    }
+
     const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db, "items"));
+      const q = query(collection(db, "items"), where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
       const itemsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setItems(itemsList);
     };
 
     fetchData();
-  }, []);
+  }, [userId, router]);
 
   const handleChange = (e, setItem) => {
     const { name, value } = e.target;
     setItem(prevItem => ({ ...prevItem, [name]: value }));
   };
 
-  const handleAddItem = () => {
-    router.push("./addItem"); // Navigate to Add Item page
+  const handleAddItem = async () => {
+    router.push('/addItem');
+    if (!userId) return;
+    try {
+      await addDoc(collection(db, "items"), { ...newItem, userId });
+      setNewItem({ name: "", quantity: "", unit: "", category: "" });
+      setSaveMessage("Item added successfully!");
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   };
 
   const handleEditItem = async (id) => {
@@ -77,7 +96,7 @@ const Pantry = () => {
     }
   };
 
-  const filteredItems = items.filter(item => 
+  const filteredItems = items.filter(item =>
     (selectedCategory === "All" || item.category === selectedCategory) &&
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -114,7 +133,7 @@ const Pantry = () => {
 
       <div className="mb-4">
         <button
-          onClick={handleAddItem}
+          onClick={() => router.push('/addItem')}
           className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Add Item
@@ -206,30 +225,11 @@ const Pantry = () => {
                 >
                   Delete
                 </button>
-                <hr className="my-4" />
               </>
             )}
           </div>
         ))
       )}
-
-      <nav className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4 flex justify-around">
-        <button onClick={() => router.push('/home')} className="text-gray-600">
-          <FaHome size={24} />
-        </button>
-        <button onClick={() => router.push('/pantry')} className="text-gray-600">
-          <FaStore size={24} />
-        </button>
-        <button onClick={() => router.push('/list')} className="text-gray-600">
-          <FaList size={24} />
-        </button>
-        <button onClick={() => router.push('/recipes')} className="text-gray-600">
-          <FaUtensils size={24} />
-        </button>
-        <button onClick={() => router.push('/profile')} className="text-gray-600">
-          <FaUser size={24} />
-        </button>
-      </nav>
     </div>
   );
 };

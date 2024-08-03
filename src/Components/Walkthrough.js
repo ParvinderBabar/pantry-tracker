@@ -29,7 +29,7 @@ const Walkthrough = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      window.location.href = '/auth_signup'; // Redirect to signup page
+      window.location.href = '/auth_login'; // Redirect to signup page
     }
   };
 

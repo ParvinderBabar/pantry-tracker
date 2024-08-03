@@ -1,7 +1,10 @@
+// pages/auth_login.js
+"use client";
+
 import { useState } from "react";
-import { auth } from "../../config/firebase.js"; 
+import { useRouter } from "next/navigation";
+import { auth } from "@/config/firebase.js"; // Import from your Firebase config
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useRouter } from "next/router";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,10 +18,12 @@ const Login = () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+             console.log("User ID:", user.uid); 
+
       setMessage("Logged in successfully! Redirecting to home...");
       setTimeout(() => {
         router.push("/home"); // Redirect to home page after successful login
-      }, 2000);
+      }, 1000);
     } catch (error) {
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -60,7 +65,7 @@ const Login = () => {
         </form>
         {message && <p className="mt-4 text-red-500">{message}</p>}
         <p className="mt-4">
-          Don't have an account? <a href="/auth_signup_password" className="text-blue-500">Sign Up</a>
+          Don't have an account? <a href="/auth_signup" className="text-blue-500">Sign Up</a>
         </p>
         <p className="mt-4">
           Forgot your password? <a href="/auth_reset_password" className="text-blue-500">Reset Password</a>

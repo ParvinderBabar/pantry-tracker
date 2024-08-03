@@ -1,12 +1,11 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation.js"; // Correct import for Next.js
 import { db } from "../../config/firebase.js";
-import { auth } from "../../config/firebase.js"; 
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { collection, addDoc } from "firebase/firestore";
 import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
 import Image from "next/image";
+import { useUser } from "@/app/UserContext/page.js"; // Adjust import path
 
 const AddItem = () => {
   const [name, setName] = useState("");
@@ -19,8 +18,14 @@ const AddItem = () => {
   const [saveMessage, setSaveMessage] = useState("");
   const [image, setImage] = useState(null);
   const router = useRouter();
+  const user = useUser();
 
   const handleSave = async () => {
+    if (!user || !user.uid) {
+      console.error("User is not authenticated or user.uid is missing.");
+      return;
+    }
+
     try {
       await addDoc(collection(db, "items"), {
         name,
@@ -30,17 +35,19 @@ const AddItem = () => {
         location,
         expirationDate,
         notification,
+        userId: user.uid, // Use user.uid here
         imageUrl: image ? URL.createObjectURL(image) : null,
       });
       setSaveMessage("Item added successfully!");
-      router.push("/pantry"); // Redirect to pantry page after successful addition
+      router.push("/pantry");
     } catch (error) {
       console.error("Error adding document: ", error);
+      setSaveMessage("Failed to add item. Please try again.");
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen pb-16"> {/* Added padding-bottom */}
+    <div className="flex flex-col min-h-screen pb-16">
       <div className="p-4 w-full max-w-md mx-auto bg-white shadow-lg rounded-lg mt-6 flex-grow">
         <nav className="flex mb-6">
           <button
@@ -53,7 +60,7 @@ const AddItem = () => {
             onClick={() => router.push("/additem?mode=scan")}
             className="flex-1 p-2 bg-green-500 text-white rounded hover:bg-green-600"
           >
-            Scan Barcode
+            Use Camera
           </button>
         </nav>
 
