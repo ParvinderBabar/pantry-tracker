@@ -24,12 +24,12 @@ export const UserProvider = ({ children }) => {
         setUser({ uid: user.uid, displayName: user.displayName });
       } else {
         setUser(null);
-        router.push('/auth_login');
+        router.push('/auth_signup');
       }
     });
 
     return () => unsubscribe();
-  }, [ router]);
+  }, [auth, router]);
 
   return (
     <UserContext.Provider value={user}>

@@ -1,4 +1,3 @@
-// pages/auth_login.js
 "use client";
 
 import { useState } from "react";
@@ -17,17 +16,14 @@ const Login = () => {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-             console.log("User ID:", user.uid); 
+      console.log("User ID:", userCredential.user.uid); // Log user ID
 
       setMessage("Logged in successfully! Redirecting to home...");
       setTimeout(() => {
         router.push("/home"); // Redirect to home page after successful login
       }, 1000);
     } catch (error) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      setMessage(`Error: ${errorMessage} (Code: ${errorCode})`);
+      setMessage(`Error: ${error.message}`);
     }
   };
 
@@ -58,7 +54,7 @@ const Login = () => {
           </div>
           <button
             type="submit"
-            className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="w-full p-2 bg-orange-500 text-white rounded hover:bg-orange-600"
           >
             Log In
           </button>

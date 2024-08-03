@@ -1,8 +1,8 @@
-// app/layout.js
-
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { UserProvider } from "@/app/UserContext/page.js"; // Adjust the import path if necessary
+import UserID from "./auth_state_listener/page.js";
+import { UserProvider } from "@/app/UserContext/page.js";
+import Walkthrough from "@/Components/Walkthrough.js";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,10 +15,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
+      
         <UserProvider>
+          
           {children}
-        </UserProvider>
-      </body>
+        </UserProvider></body>
     </html>
   );
 }

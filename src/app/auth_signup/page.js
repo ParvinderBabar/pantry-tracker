@@ -80,7 +80,9 @@ const SignUp = () => {
     const auth = getAuth();
     const firestore = getFirestore();
 
+    
     try {
+      // Create user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -90,15 +92,16 @@ const SignUp = () => {
       // Save user details to Firestore
       await setDoc(doc(firestore, "users", user.uid), {
         email,
-        displayName, // Save displayName to Firestore
+        displayName,
         createdAt: new Date(),
       });
 
       router.push("/dashboard");
     } catch (error) {
-      setMessage(error.message);
+      setMessage(`Error: ${error.message}`);
     }
   };
+    
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

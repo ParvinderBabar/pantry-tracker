@@ -2,34 +2,24 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "../../config/firebase.js";
-import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import Image from "next/image";
 import { useUser } from "@/app/UserContext/page.js"; // Adjust the path accordingly
+import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
 
 const Pantry = () => {
-  const user = useUser(); // Correctly call the hook
-  const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({
-    name: "",
-    quantity: "",
-    unit: "",
-    category: "",
-  });
-  const [editItemId, setEditItemId] = useState(null);
-  const [editItem, setEditItem] = useState({
-    name: "",
-    quantity: "",
-    unit: "",
-    category: "",
-  });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [saveMessage, setSaveMessage] = useState("");
+  const user = useUser();
   const router = useRouter();
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
+  
+  const [items, setItems] = useState([]);
+  const [newItem, setNewItem] = useState({ name: "", quantity: "", unit: "", category: "" });
+  const [editItemId, setEditItemId] = useState(null);
+  const [editItem, setEditItem] = useState({ name: "", quantity: "", unit: "", category: "" });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [saveMessage, setSaveMessage] = useState("");
 
   useEffect(() => {
     if (!userId) {
@@ -37,24 +27,24 @@ const Pantry = () => {
       return;
     }
 
-    const fetchData = async () => {
+    const fetchItems = async () => {
       const q = query(collection(db, "items"), where("userId", "==", userId));
       const querySnapshot = await getDocs(q);
-      const itemsList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setItems(itemsList);
+      const fetchedItems = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setItems(fetchedItems);
     };
 
-    fetchData();
+    fetchItems();
   }, [userId, router]);
 
-  const handleChange = (e, setItem) => {
+  const handleChange = (e, setter) => {
     const { name, value } = e.target;
-    setItem(prevItem => ({ ...prevItem, [name]: value }));
+    setter(prev => ({ ...prev, [name]: value }));
   };
 
   const handleAddItem = async () => {
-    router.push('/addItem');
     if (!userId) return;
+
     try {
       await addDoc(collection(db, "items"), { ...newItem, userId });
       setNewItem({ name: "", quantity: "", unit: "", category: "" });
@@ -64,7 +54,7 @@ const Pantry = () => {
     }
   };
 
-  const handleEditItem = async (id) => {
+  const handleEditItem = (id) => {
     setEditItemId(id);
     const itemToEdit = items.find(item => item.id === id);
     if (itemToEdit) {
@@ -75,7 +65,7 @@ const Pantry = () => {
   const handleSaveChanges = async () => {
     try {
       await updateDoc(doc(db, "items", editItemId), editItem);
-      setItems(prevItems =>
+      setItems(prevItems => 
         prevItems.map(item => (item.id === editItemId ? { id: editItemId, ...editItem } : item))
       );
       setEditItemId(null);
@@ -102,9 +92,9 @@ const Pantry = () => {
   );
 
   return (
-    <div className="p-4 w-full max-w-md mx-auto bg-white shadow-lg rounded-lg mt-6 sm:mt-8 md:mt-10 lg:mt-12">
+    <div className="p-4 w-full max-w-md mx-auto bg-white shadow-lg rounded-lg mt-6">
       <h2 className="text-2xl font-bold mb-4">Pantry Items</h2>
-      
+
       <div className="mb-4">
         <input
           type="text"
@@ -114,14 +104,14 @@ const Pantry = () => {
           className="w-full p-2 border border-gray-300 rounded"
         />
       </div>
-      
+
       <div className="mb-4">
-        <nav className="flex space-x-4">
+        <nav className="flex space-x-4 mb-4">
           {["All", "Fridge", "Shelf", "Cleaning"].map(category => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`p-2 ${selectedCategory === category ? 'bg-blue-500 text-white' : 'bg-gray-200'} rounded`}
+              className={`p-2 ${selectedCategory === category ? 'bg-orange-500 text-white' : 'bg-gray-200'} rounded`}
             >
               {category}
             </button>
@@ -134,17 +124,26 @@ const Pantry = () => {
       <div className="mb-4">
         <button
           onClick={() => router.push('/addItem')}
-          className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="w-full p-2 bg-orange-500 text-white rounded hover:bg-orange-600"
         >
           Add Item
+        </button>
+      </div>
+
+      <div className="mb-4">
+        <button
+          onClick={() => router.push('/recipes')}
+          className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          Get Recipe Suggestions
         </button>
       </div>
 
       {filteredItems.length === 0 ? (
         <p>No items found.</p>
       ) : (
-        filteredItems.map((item) => (
-          <div key={item.id} className="mb-4">
+        filteredItems.map(item => (
+          <div key={item.id} className="mb-4 p-4 border rounded shadow-sm">
             {editItemId === item.id ? (
               <>
                 <div className="mb-4">
@@ -202,16 +201,15 @@ const Pantry = () => {
                 </div>
                 <div className="flex items-center mb-2">
                   <label className="w-24 font-semibold">Quantity:</label>
-                  <span>
-                    {item.quantity} {item.unit}
-                  </span>
+                  <span>{item.quantity}</span>
+                </div>
+                <div className="flex items-center mb-2">
+                  <label className="w-24 font-semibold">Unit:</label>
+                  <span>{item.unit}</span>
                 </div>
                 <div className="flex items-center mb-2">
                   <label className="w-24 font-semibold">Category:</label>
                   <span>{item.category}</span>
-                </div>
-                <div className="flex items-center mb-2">
-                  <Image src="/example.jpg" alt="Example Image" width={50} height={50} />
                 </div>
                 <button
                   onClick={() => handleEditItem(item.id)}
@@ -230,6 +228,24 @@ const Pantry = () => {
           </div>
         ))
       )}
+      
+      <nav className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4 flex justify-around">
+        <button onClick={() => router.push('/home')} className="text-gray-600 hover:text-orange-500">
+          <FaHome size={24} />
+        </button>
+        <button onClick={() => router.push('/pantry')} className="text-gray-600 hover:text-orange-500">
+          <FaList size={24} />
+        </button>
+        <button onClick={() => router.push('/recipes')} className="text-gray-600 hover:text-orange-500">
+          <FaUtensils size={24} />
+        </button>
+        <button onClick={() => router.push('/profile')} className="text-gray-600 hover:text-orange-500">
+          <FaUser size={24} />
+        </button>
+        <button onClick={() => router.push('/store')} className="text-gray-600 hover:text-orange-500">
+          <FaStore size={24} />
+        </button>
+      </nav>
     </div>
   );
 };
