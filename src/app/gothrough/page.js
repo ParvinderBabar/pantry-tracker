@@ -2,9 +2,9 @@
 "use client"
 import Walkthrough from '../../Components/Walkthrough.js';
 
-const Walkthrough = () => {
+const gothrough = () => {
     // return <Walkthrough />;
     
 };
 
-export default Walkthrough;
+export default gothroughthrough;
