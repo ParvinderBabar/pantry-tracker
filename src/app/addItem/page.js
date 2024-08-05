@@ -1,6 +1,7 @@
+// pages/additem.js
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // Correct import for Next.js
+import { useRouter } from "next/navigation";
 import { db } from "../../config/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
@@ -36,9 +37,9 @@ const AddItem = () => {
         unit,
         category,
         location,
-        expirationDate,
+        expirationDate: new Date(expirationDate), // Store as Date object
         notification,
-        userId: user.uid, // Use user.uid here
+        userId: user.uid,
         imageUrl: image ? URL.createObjectURL(image) : null,
       });
       setSaveMessage("Item added successfully!");

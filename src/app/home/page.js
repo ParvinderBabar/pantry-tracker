@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase.js';
 import { useRouter } from 'next/navigation';
-import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt } from 'react-icons/fa';
 import { getAuth, signOut } from 'firebase/auth';
+import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt } from 'react-icons/fa';
 
 const HomePage = () => {
   const [items, setItems] = useState([]);
@@ -13,30 +13,41 @@ const HomePage = () => {
   const [pantryCount, setPantryCount] = useState(0);
   const [recipes, setRecipes] = useState([]);
   const [shoppingLists, setShoppingLists] = useState([]);
-  const [expiringItemsCount, setExpiringItemsCount] = useState(0); // New state for expiring items count
+  const [expiringItemsCount, setExpiringItemsCount] = useState(0);
   const router = useRouter();
+  const auth = getAuth();
+  const userId = auth.currentUser?.uid; // Get user ID
 
   useEffect(() => {
+    if (!userId) {
+      router.push('/auth_login');
+      return;
+    }
+
     const fetchItems = async () => {
       try {
         const today = new Date();
-        const nextWeek = new Date();
-        nextWeek.setDate(today.getDate() + 7);
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-        const todayString = today.toISOString().split('T')[0];
-        const nextWeekString = nextWeek.toISOString().split('T')[0];
+        const startOfMonthString = startOfMonth.toISOString().split('T')[0];
+        const endOfMonthString = endOfMonth.toISOString().split('T')[0];
 
         const q = query(
           collection(db, 'items'),
-          where('expirationDate', '>=', todayString),
-          where('expirationDate', '<=', nextWeekString)
+          where('userId', '==', userId),
+          where('expirationDate', '>=', startOfMonthString),
+          where('expirationDate', '<=', endOfMonthString)
         );
 
         const querySnapshot = await getDocs(q);
-        const itemsArray = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setItems(itemsArray);
+        const itemsArray = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          const expirationDate = new Date(data.expirationDate.seconds * 1000);
+          return { id: doc.id, ...data, expirationDate };
+        });
 
-        // Calculate the number of expiring items
+        setItems(itemsArray);
         setExpiringItemsCount(itemsArray.length);
       } catch (error) {
         console.error('Error fetching items: ', error);
@@ -45,7 +56,7 @@ const HomePage = () => {
 
     const fetchShoppingLists = async () => {
       try {
-        const q = query(collection(db, 'shoppingLists'));
+        const q = query(collection(db, 'shoppingLists'), where('userId', '==', userId));
         const querySnapshot = await getDocs(q);
 
         const shoppingListsArray = querySnapshot.docs.map((doc) => ({
@@ -54,7 +65,6 @@ const HomePage = () => {
         }));
         setShoppingLists(shoppingListsArray);
 
-        // Calculate the total number of items in all shopping lists
         const totalItemsCount = shoppingListsArray.reduce((acc, list) => acc + (list.items ? list.items.length : 0), 0);
         setShoppingListCount(totalItemsCount);
       } catch (error) {
@@ -64,7 +74,7 @@ const HomePage = () => {
 
     const fetchPantryCount = async () => {
       try {
-        const q = query(collection(db, 'items')); // Assuming pantry items are stored in 'items'
+        const q = query(collection(db, 'items'), where('userId', '==', userId));
         const querySnapshot = await getDocs(q);
         setPantryCount(querySnapshot.size);
       } catch (error) {
@@ -74,7 +84,7 @@ const HomePage = () => {
 
     const fetchRecipes = async () => {
       try {
-        const q = query(collection(db, 'recipes'));
+        const q = query(collection(db, 'recipes'), where('userId', '==', userId));
         const querySnapshot = await getDocs(q);
         const recipesArray = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setRecipes(recipesArray);
@@ -87,11 +97,11 @@ const HomePage = () => {
     fetchShoppingLists();
     fetchPantryCount();
     fetchRecipes();
-  }, []);
+  }, [userId, router]);
 
   const handleSignOut = async () => {
     try {
-      await signOut(getAuth());
+      await signOut(auth);
       router.push('/auth_login');
     } catch (error) {
       console.error('Error signing out: ', error);
@@ -109,18 +119,17 @@ const HomePage = () => {
       <h1 className="text-4xl font-bold mb-4 text-orange-600">Welcome to Your Pantry Tracker!</h1>
       <div className="w-full max-w-5xl bg-white p-6 rounded-lg shadow-md mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="p-4 bg-blue-200 rounded-lg shadow-md h-60 flex flex-col">
-          <h2 className="text-xl font-semibold mb-2">Items Expiring Soon</h2>
-            <p className="text-3xl font-bold mt-4">{expiringItemsCount} items</p>
+          <h2 className="text-xl font-semibold mb-2">Items Expiring This Month</h2>
+          <p className="text-3xl font-bold mt-4">{expiringItemsCount} items</p>
           <ul className="flex-1 overflow-auto">
             {items.length > 0 ? (
               items.map(item => (
-                <li key={item.id} className="p-2 border-b border-gray-200">{item.name} - {item.expirationDate}</li>
+                <li key={item.id} className="p-2 border-b border-gray-200">{item.name} - {item.expirationDate.toDateString()}</li>
               ))
             ) : (
-              <p>No items expiring soon.</p>
+              <p>No items expiring this month.</p>
             )}
           </ul>
-        
         </div>
         <div className="p-4 bg-green-200 rounded-lg shadow-md h-60 flex flex-col">
           <h2 className="text-xl font-semibold mb-2">Shopping List</h2>
@@ -140,19 +149,19 @@ const HomePage = () => {
           <p className="text-3xl font-bold mt-4">{pantryCount} items</p>
         </div>
         <div className="p-4 bg-red-200 rounded-lg shadow-md h-60 flex flex-col justify-between">
-          <h2 className="text-xl font-semibold mb-2">Monthly Budget</h2>
+          <h2 className="text-xl font-semibold mb-2">Recipes</h2>
           <ul className="flex-1 overflow-auto">
             {recipes.length > 0 ? (
               recipes.map(recipe => (
                 <li key={recipe.id} className="p-2 border-b border-gray-200">{recipe.name}</li>
               ))
             ) : (
-              <p>No budget available right now.</p>
+              <p>No recipes available right now.</p>
             )}
           </ul>
         </div>
       </div>
-     <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
+      <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
         <button onClick={() => router.push("/home")} className="flex items-center">
           <FaHome className="mr-1" /> 
         </button>

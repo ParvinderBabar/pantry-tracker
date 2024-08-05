@@ -3,14 +3,16 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/config/firebase.js";
 import { collection, addDoc, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore";
-import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaPlusCircle, FaEdit, FaTrash, FaMinus, FaPlus, FaCaretDown, FaArrowLeft,FaSignOutAlt} from 'react-icons/fa';
+import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaPlusCircle, FaEdit, FaTrash, FaMinus, FaPlus, FaCaretDown, FaArrowLeft, FaSignOutAlt } from 'react-icons/fa';
 import { useUser } from "@/app/UserContext/page";
+import { signOut } from "firebase/auth";
+import { auth } from "@/config/firebase.js";
 
 const AddShoppingList = () => {
   const [listName, setListName] = useState("");
-  const [items, setItems] = useState([{ name: "", quantity: 0 }]); // Default quantity is 0
+  const [items, setItems] = useState([{ name: "", quantity: 0 }]);
   const [saveMessage, setSaveMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // For validation errors
+  const [errorMessage, setErrorMessage] = useState("");
   const [shoppingLists, setShoppingLists] = useState([]);
   const [isCreatingNewList, setIsCreatingNewList] = useState(false);
   const [isEditingList, setIsEditingList] = useState(false);
@@ -45,7 +47,7 @@ const AddShoppingList = () => {
   };
 
   const handleAddItem = () => {
-    setItems([...items, { name: "", quantity: 0 }]); // New item starts with quantity 0
+    setItems([...items, { name: "", quantity: 0 }]);
   };
 
   const validateInputs = () => {
@@ -70,7 +72,7 @@ const AddShoppingList = () => {
     }
 
     if (!validateInputs()) {
-      return; // Stop save operation if validation fails
+      return;
     }
 
     try {
@@ -100,17 +102,17 @@ const AddShoppingList = () => {
 
   const resetForm = () => {
     setListName("");
-    setItems([{ name: "", quantity: 0 }]); // Reset items to initial state
+    setItems([{ name: "", quantity: 0 }]);
     setIsCreatingNewList(false);
     setIsEditingList(false);
     setCurrentListId(null);
-    setErrorMessage(""); // Clear error message
-    setSaveMessage(""); // Clear save message
+    setErrorMessage("");
+    setSaveMessage("");
   };
 
   const handleQuantityChange = (index, increment) => {
     const newItems = [...items];
-    newItems[index].quantity = Math.max(0, newItems[index].quantity + increment); // Ensure quantity is not less than 0
+    newItems[index].quantity = Math.max(0, newItems[index].quantity + increment);
     setItems(newItems);
   };
 
@@ -141,7 +143,7 @@ const AddShoppingList = () => {
     setIsCollapsed((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-   const handleSignOut = async () => {
+  const handleSignOut = async () => {
     try {
       await signOut(auth);
       router.push('/auth_login');
@@ -151,8 +153,8 @@ const AddShoppingList = () => {
   };
 
   return (
-      <div className="relative min-h-screen flex flex-col bg-cover bg-center" style={{ backgroundImage: 'url(/bg5.jpg)' }}>
-          <button
+    <div className="relative min-h-screen flex flex-col bg-cover bg-center" style={{ backgroundImage: 'url(/bg5.jpg)' }}>
+      <button
         onClick={handleSignOut}
         className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded hover:bg-red-600"
       >
@@ -167,12 +169,6 @@ const AddShoppingList = () => {
             <FaArrowLeft />
           </button>
         )}
-        <button
-          onClick={handleSignOut}
-          className="absolute top-4 right-4 p-2 text-red-500"
-        >
-          <FaSignOutAlt />
-        </button>
       </div>
 
       <div className="flex-grow p-4 w-full max-w-md mx-auto bg-white shadow-lg rounded-lg mt-6">
@@ -192,7 +188,7 @@ const AddShoppingList = () => {
 
             <h3 className="text-xl font-bold mb-2">Items</h3>
             {items.map((item, index) => (
-              item.quantity >= 0 && ( // Ensure item quantity is 0 or greater
+              item.quantity >= 0 && (
                 <div key={index} className="mb-4 flex items-center">
                   <input
                     type="text"
@@ -249,33 +245,22 @@ const AddShoppingList = () => {
                   <li key={list.id} className="mb-4 p-4 border border-gray-300 rounded">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-lg">{list.listName}</span>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleEditList(list)}
-                          className="p-2 text-blue-500"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteList(list.id)}
-                          className="p-2 text-red-500"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
+                      <button onClick={() => handleEditList(list)} className="p-2 text-blue-500">
+                        <FaEdit />
+                      </button>
+                      <button onClick={() => handleDeleteList(list.id)} className="p-2 text-red-500">
+                        <FaTrash />
+                      </button>
+                      <button onClick={() => toggleCollapse(list.id)} className="p-2 text-gray-500">
+                        {isCollapsed[list.id] ? <FaCaretDown /> : <FaCaretDown />}
+                      </button>
                     </div>
-                    <button
-                      onClick={() => toggleCollapse(list.id)}
-                      className="mt-2 flex items-center"
-                    >
-                      {isCollapsed[list.id] ? "Show Less" : "Show More"}
-                      <FaCaretDown className={`ml-2 transform ${isCollapsed[list.id] ? "rotate-180" : ""}`} />
-                    </button>
                     {isCollapsed[list.id] && (
                       <ul className="mt-2">
                         {list.items.map((item, index) => (
-                          <li key={index} className="flex justify-between mb-2">
-                            <span>{item.name} ({item.quantity})</span>
+                          <li key={index} className="flex justify-between p-2 border-b border-gray-200">
+                            <span>{item.name}</span>
+                            <span>{item.quantity}</span>
                           </li>
                         ))}
                       </ul>
@@ -284,13 +269,12 @@ const AddShoppingList = () => {
                 ))}
               </ul>
             ) : (
-              <div>No shopping lists found.</div>
+              <p>No shopping lists found. Create a new one to get started.</p>
             )}
           </>
         )}
-      </div>
-
-      <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
+          </div>
+          <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
         <button onClick={() => router.push("/home")} className="flex items-center">
           <FaHome className="mr-1" /> 
         </button>
