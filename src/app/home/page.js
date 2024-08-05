@@ -145,6 +145,13 @@ const HomePage = () => {
           <div>
             <h2 className="text-xl font-semibold">Pantry Items</h2>
             <p className="text-lg">{pantryCount} Items</p>
+            <button 
+                onClick={() => router.push('/pantryItemList')} 
+                className="mt-2 text-blue-600 hover:underline flex items-center"
+              >
+                View
+                <FaArrowRight className="ml-1" />
+              </button>
           </div>
           <FaStore size={24} />
         </div>
@@ -152,6 +159,13 @@ const HomePage = () => {
           <div>
             <h2 className="text-xl font-semibold">Shopping Lists</h2>
             <p className="text-lg">{shoppingListCount} Items</p>
+             <button 
+                onClick={() => router.push('/list')} 
+                className="mt-2 text-blue-600 hover:underline flex items-center"
+              >
+                View
+                <FaArrowRight className="ml-1" />
+              </button>
           </div>
           <FaShoppingCart size={24} />
         </div>
@@ -163,7 +177,7 @@ const HomePage = () => {
                 onClick={() => router.push('/generateRecipePage')} 
                 className="mt-2 text-blue-600 hover:underline flex items-center"
               >
-                checkout here
+                Check out here
                 <FaArrowRight className="ml-1" />
               </button>
           </div>
@@ -187,17 +201,7 @@ const HomePage = () => {
 
         </div>
       </div>
-      {/* <nav className="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex justify-around">
-        <button onClick={() => router.push("/")} className="flex items-center">
-          <FaHome className="mr-1" />
-        </button>
-        <button onClick={() => router.push("/profile")} className="flex items-center">
-          <FaUser className="mr-1" />
-        </button>
-        <button onClick={() => router.push("/pantry")} className="flex items-center">
-          <FaStore className="mr-1" />
-        </button>
-      </nav> */}
+    
        <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
         <button onClick={() => router.push("/home")} className="flex items-center">
           <FaHome className="mr-1" /> 

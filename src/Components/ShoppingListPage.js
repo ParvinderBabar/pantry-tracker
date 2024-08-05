@@ -1,13 +1,12 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { db } from "../config/firebase.js";
-import { collection, addDoc, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore";
-import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaPlusCircle, FaEdit, FaTrash, FaMinus, FaPlus, FaCaretDown, FaArrowLeft, FaSignOutAlt } from 'react-icons/fa';
-import { useUser } from "../Contexts/UserContexts.js";
-import { signOut } from "firebase/auth";
-import { auth } from "../config/firebase.js";
+'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { db, auth } from '../config/firebase.js';
+import { collection, addDoc, getDocs, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaPlusCircle, FaEdit, FaTrash, FaMinus, FaPlus, FaCaretDown, FaArrowLeft, FaSignOutAlt } from 'react-icons/fa';
+import { useUser } from '../Contexts/UserContexts.js';
+import { signOut } from 'firebase/auth';
 
 const AddShoppingList = () => {
   const [listName, setListName] = useState("");
@@ -27,7 +26,6 @@ const AddShoppingList = () => {
       fetchShoppingLists();
     }
   }, [user]);
-  
 
   const fetchShoppingLists = async () => {
     try {
@@ -155,28 +153,25 @@ const AddShoppingList = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-cover bg-center" style={{ backgroundImage: 'url(/bg5.jpg)' }}>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100" style={{ backgroundImage: 'url(/bg5.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <button
         onClick={handleSignOut}
         className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded hover:bg-red-600"
       >
         <FaSignOutAlt size={20} />
       </button>
-      <div className="relative">
-        {isCreatingNewList && (
-          <button
-            onClick={() => router.back()}
-            className="absolute top-4 left-4 p-2 bg-gray-200 rounded-full shadow-md"
-          >
-            <FaArrowLeft />
-          </button>
-        )}
-      </div>
-
-      <div className="flex-grow p-4 w-full max-w-md mx-auto bg-white shadow-lg rounded-lg mt-6">
+      {isCreatingNewList && (
+        <button
+          onClick={() => router.back()}
+          className="absolute top-4 left-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          <FaArrowLeft size={20} />
+        </button>
+      )}
+      <div className="w-full max-w-5xl bg-white p-6 rounded-lg shadow-md mt-6">
         {isCreatingNewList ? (
           <>
-            <h2 className="text-2xl font-bold mb-4">{isEditingList ? "Edit Shopping List" : "Add New Shopping List"}</h2>
+            <h2 className="text-4xl font-bold mb-4 text-orange-600">{isEditingList ? "Edit Shopping List" : "Add New Shopping List"}</h2>
             <div className="mb-4">
               <label className="block mb-2 font-semibold">List Name</label>
               <input
@@ -187,8 +182,7 @@ const AddShoppingList = () => {
                 required
               />
             </div>
-
-            <h3 className="text-xl font-bold mb-2">Items</h3>
+            <h3 className="text-2xl font-bold mb-2">Items</h3>
             {items.map((item, index) => (
               item.quantity >= 0 && (
                 <div key={index} className="mb-4 flex items-center">
@@ -221,9 +215,7 @@ const AddShoppingList = () => {
             >
               Add Another Item
             </button>
-
             {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
-
             <button
               onClick={handleSave}
               className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -234,7 +226,7 @@ const AddShoppingList = () => {
           </>
         ) : (
           <>
-            <h2 className="text-2xl font-bold mb-4">Shopping Lists ({shoppingLists.length})</h2>
+            <h2 className="text-4xl font-bold mb-4 text-orange-600">Shopping Lists ({shoppingLists.length})</h2>
             <button
               onClick={() => setIsCreatingNewList(true)}
               className="w-full p-2 bg-orange-500 text-white rounded hover:bg-orange-600 mb-4 flex items-center justify-center"
@@ -244,25 +236,26 @@ const AddShoppingList = () => {
             {shoppingLists.length > 0 ? (
               <ul>
                 {shoppingLists.map((list) => (
-                  <li key={list.id} className="mb-4 p-4 border border-gray-300 rounded">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-lg">{list.listName}</span>
-                      <button onClick={() => handleEditList(list)} className="p-2 text-blue-500">
-                        <FaEdit />
-                      </button>
-                      <button onClick={() => handleDeleteList(list.id)} className="p-2 text-red-500">
-                        <FaTrash />
-                      </button>
-                      <button onClick={() => toggleCollapse(list.id)} className="p-2 text-gray-500">
-                        {isCollapsed[list.id] ? <FaCaretDown /> : <FaCaretDown />}
-                      </button>
+                  <li key={list.id} className="mb-4 p-4 border border-gray-100  rounded">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-xl font-bold text-black">{list.listName}</h3>
+                      <div className="flex items-center">
+                        <button onClick={() => handleEditList(list)} className="mr-2 p-2 text-blue-500">
+                          <FaEdit />
+                        </button>
+                        <button onClick={() => handleDeleteList(list.id)} className="p-2 text-red-500">
+                          <FaTrash />
+                        </button>
+                        <button onClick={() => toggleCollapse(list.id)} className="ml-2 p-2 text-gray-500">
+                          <FaCaretDown />
+                        </button>
+                      </div>
                     </div>
-                    {isCollapsed[list.id] && (
+                    {!isCollapsed[list.id] && (
                       <ul className="mt-2">
                         {list.items.map((item, index) => (
-                          <li key={index} className="flex justify-between p-2 border-b border-gray-200">
-                            <span>{item.name}</span>
-                            <span>{item.quantity}</span>
+                          <li key={index} className="flex justify-between items-center mb-2">
+                            <span>{item.name} - {item.quantity}</span>
                           </li>
                         ))}
                       </ul>
@@ -271,16 +264,16 @@ const AddShoppingList = () => {
                 ))}
               </ul>
             ) : (
-              <p>No shopping lists found. Create a new one to get started.</p>
+              <p>No shopping lists found.</p>
             )}
           </>
         )}
-          </div>
-          <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
+      </div>
+      <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
         <button onClick={() => router.push("/home")} className="flex items-center">
           <FaHome className="mr-1" /> 
         </button>
-         <button onClick={() => router.push("/pantry")} className="flex items-center">
+        <button onClick={() => router.push("/pantry")} className="flex items-center">
           <FaStore className="mr-1" /> 
         </button>
         <button onClick={() => router.push("/list")} className="flex items-center">
@@ -292,7 +285,6 @@ const AddShoppingList = () => {
         <button onClick={() => router.push("/profile")} className="flex items-center">
           <FaUser className="mr-1" /> 
         </button>
-       
       </nav>
     </div>
   );

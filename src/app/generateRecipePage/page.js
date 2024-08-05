@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../../config/firebase.js';
 import { collection, query, getDocs, addDoc } from 'firebase/firestore';
-import { FaSignOutAlt } from 'react-icons/fa';
+// import { FaSignOutAlt } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt, FaArrowRight, FaShoppingCart } from 'react-icons/fa';
 import { FcExpired } from "react-icons/fc";
