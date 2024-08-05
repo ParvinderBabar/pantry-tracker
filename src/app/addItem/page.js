@@ -179,21 +179,21 @@ const AddItem = () => {
         </button>
       </div>
 
-      <nav className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4 flex justify-around border-t border-gray-200">
-        <button onClick={() => router.push('/home')} className="text-gray-600">
-          <FaHome size={24} />
+      <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
+        <button onClick={() => router.push("/home")} className="flex items-center">
+          <FaHome className="mr-1" /> 
         </button>
-        <button onClick={() => router.push('/pantry')} className="text-gray-600">
-          <FaStore size={24} />
+        <button onClick={() => router.push("/list")} className="flex items-center">
+          <FaList className="mr-1" /> 
         </button>
-        <button onClick={() => router.push('/list')} className="text-gray-600">
-          <FaList size={24} />
+        <button onClick={() => router.push("/recipes")} className="flex items-center">
+          <FaUtensils className="mr-1" /> 
         </button>
-        <button onClick={() => router.push('/recipes')} className="text-gray-600">
-          <FaUtensils size={24} />
+        <button onClick={() => router.push("/profile")} className="flex items-center">
+          <FaUser className="mr-1" /> 
         </button>
-        <button onClick={() => router.push('/profile')} className="text-gray-600">
-          <FaUser size={24} />
+        <button onClick={() => router.push("/pantry")} className="flex items-center">
+          <FaStore className="mr-1" /> 
         </button>
       </nav>
     </div>
