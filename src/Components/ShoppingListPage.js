@@ -8,6 +8,7 @@ import { useUser } from "../Contexts/UserContexts.js";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase.js";
 
+
 const AddShoppingList = () => {
   const [listName, setListName] = useState("");
   const [items, setItems] = useState([{ name: "", quantity: 0 }]);
@@ -279,6 +280,9 @@ const AddShoppingList = () => {
         <button onClick={() => router.push("/home")} className="flex items-center">
           <FaHome className="mr-1" /> 
         </button>
+         <button onClick={() => router.push("/pantry")} className="flex items-center">
+          <FaStore className="mr-1" /> 
+        </button>
         <button onClick={() => router.push("/list")} className="flex items-center">
           <FaList className="mr-1" /> 
         </button>
@@ -288,9 +292,7 @@ const AddShoppingList = () => {
         <button onClick={() => router.push("/profile")} className="flex items-center">
           <FaUser className="mr-1" /> 
         </button>
-        <button onClick={() => router.push("/pantry")} className="flex items-center">
-          <FaStore className="mr-1" /> 
-        </button>
+       
       </nav>
     </div>
   );

@@ -4,6 +4,8 @@ import { db, auth } from '../../config/firebase.js';
 import { collection, query, getDocs, addDoc } from 'firebase/firestore';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
+import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt, FaArrowRight, FaShoppingCart } from 'react-icons/fa';
+import { FcExpired } from "react-icons/fc";
 const generateRecipePage = () => {
   const [pantryItems, setPantryItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -251,7 +253,7 @@ const handleSignOut = async () => {
                 ))}
               </ol>
 
-              <div style={{ marginTop: '20px' }}>
+              {/* <div style={{ marginTop: '20px' }}>
                 <button 
                   onClick={addToShoppingCart}
                   style={{ marginRight: '10px', padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
@@ -264,12 +266,30 @@ const handleSignOut = async () => {
                 >
                   {saveSuccess ? 'Recipe Saved!' : 'Save Recipe'}
                 </button>
-              </div>
+              </div> */}
             </>
           )}
         </div>
       )}
-       </div>
+      </div>
+      <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
+        <button onClick={() => router.push("/home")} className="flex items-center">
+          <FaHome className="mr-1" /> 
+        </button>
+         <button onClick={() => router.push("/pantry")} className="flex items-center">
+          <FaStore className="mr-1" /> 
+        </button>
+        <button onClick={() => router.push("/list")} className="flex items-center">
+          <FaList className="mr-1" /> 
+        </button>
+        <button onClick={() => router.push("/recipes")} className="flex items-center">
+          <FaUtensils className="mr-1" /> 
+        </button>
+        <button onClick={() => router.push("/profile")} className="flex items-center">
+          <FaUser className="mr-1" /> 
+        </button>
+       
+      </nav>
    
     </div>
   );

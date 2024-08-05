@@ -1,6 +1,6 @@
 
 import ShoppingListPage from '../../Components/ShoppingListPage.js';
-import { db } from "../config/firebase.js";
+// import { db } from "../config/firebase.js";
 
 
 // Adjust the path based on your project structure

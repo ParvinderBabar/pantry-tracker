@@ -164,9 +164,12 @@ const Profile = () => {
         </div>
       </div>
 
-      <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around sm:justify-between md:justify-around">
+     <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
         <button onClick={() => router.push("/home")} className="flex items-center">
           <FaHome className="mr-1" /> 
+        </button>
+         <button onClick={() => router.push("/pantry")} className="flex items-center">
+          <FaStore className="mr-1" /> 
         </button>
         <button onClick={() => router.push("/list")} className="flex items-center">
           <FaList className="mr-1" /> 
@@ -177,9 +180,7 @@ const Profile = () => {
         <button onClick={() => router.push("/profile")} className="flex items-center">
           <FaUser className="mr-1" /> 
         </button>
-        <button onClick={() => router.push("/pantry")} className="flex items-center">
-          <FaStore className="mr-1" /> 
-        </button>
+       
       </nav>
     </div>
   );

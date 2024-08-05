@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "../../config/firebase";
 import { collection, addDoc } from "firebase/firestore";
-import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
+// import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
 import Image from "next/image";
 import { useUser } from "../../Contexts/UserContexts.js"; // Adjust import path
+import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt, FaArrowRight, FaShoppingCart } from 'react-icons/fa';
+import { FcExpired } from "react-icons/fc";
 
 const categories = ["Fridge", "Shelf", "Cleaning"];
 const units = [ "None","Liters", "Kg", "Grams", "Dozen"];
@@ -193,6 +195,9 @@ const AddItem = () => {
         <button onClick={() => router.push("/home")} className="flex items-center">
           <FaHome className="mr-1" /> 
         </button>
+         <button onClick={() => router.push("/pantry")} className="flex items-center">
+          <FaStore className="mr-1" /> 
+        </button>
         <button onClick={() => router.push("/list")} className="flex items-center">
           <FaList className="mr-1" /> 
         </button>
@@ -202,9 +207,7 @@ const AddItem = () => {
         <button onClick={() => router.push("/profile")} className="flex items-center">
           <FaUser className="mr-1" /> 
         </button>
-        <button onClick={() => router.push("/pantry")} className="flex items-center">
-          <FaStore className="mr-1" /> 
-        </button>
+       
       </nav>
     </div>
   );

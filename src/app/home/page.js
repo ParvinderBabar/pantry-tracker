@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../config/firebase.js';
+// import { db } from '../../config/firebase.js';
+import {db} from '../../config/firebase.js'
 import { useRouter } from 'next/navigation';
 import { getAuth, signOut } from 'firebase/auth';
-import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt, FaArrowRight } from 'react-icons/fa';
-
+import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt, FaArrowRight, FaShoppingCart } from 'react-icons/fa';
+import { FcExpired } from "react-icons/fc";
 const HomePage = () => {
   const [items, setItems] = useState([]);
   const [shoppingListCount, setShoppingListCount] = useState(0);
@@ -145,14 +146,14 @@ const HomePage = () => {
             <h2 className="text-xl font-semibold">Pantry Items</h2>
             <p className="text-lg">{pantryCount} Items</p>
           </div>
-          <FaList size={24} />
+          <FaStore size={24} />
         </div>
         <div className="p-4 bg-green-200 rounded-lg shadow-md flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold">Shopping Lists</h2>
             <p className="text-lg">{shoppingListCount} Items</p>
           </div>
-          <FaList size={24} />
+          <FaShoppingCart size={24} />
         </div>
         <div className="p-4 bg-yellow-200 rounded-lg shadow-md flex items-center justify-between">
           <div>
@@ -170,9 +171,9 @@ const HomePage = () => {
         </div>
         <div className="p-4 bg-red-200 rounded-lg shadow-md flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold">Expiring Items</h2>
+            <h2 className="text-xl font-semibold">Expiring Items this Month</h2>
             <p className="text-lg">{expiredCount} Items</p>
-            {expiredCount > 3 && (
+           
               <button 
                 onClick={() => router.push('/ExpiringItemsList')} 
                 className="mt-2 text-blue-600 hover:underline flex items-center"
@@ -180,11 +181,13 @@ const HomePage = () => {
                 View All
                 <FaArrowRight className="ml-1" />
               </button>
-            )}
+           
           </div>
+             <FcExpired size={24} />
+
         </div>
       </div>
-      <nav className="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex justify-around">
+      {/* <nav className="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex justify-around">
         <button onClick={() => router.push("/")} className="flex items-center">
           <FaHome className="mr-1" />
         </button>
@@ -194,6 +197,24 @@ const HomePage = () => {
         <button onClick={() => router.push("/pantry")} className="flex items-center">
           <FaStore className="mr-1" />
         </button>
+      </nav> */}
+       <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
+        <button onClick={() => router.push("/home")} className="flex items-center">
+          <FaHome className="mr-1" /> 
+        </button>
+         <button onClick={() => router.push("/pantry")} className="flex items-center">
+          <FaStore className="mr-1" /> 
+        </button>
+        <button onClick={() => router.push("/list")} className="flex items-center">
+          <FaList className="mr-1" /> 
+        </button>
+        <button onClick={() => router.push("/recipes")} className="flex items-center">
+          <FaUtensils className="mr-1" /> 
+        </button>
+        <button onClick={() => router.push("/profile")} className="flex items-center">
+          <FaUser className="mr-1" /> 
+        </button>
+       
       </nav>
     </div>
   );
