@@ -104,7 +104,7 @@ const SignUp = () => {
     
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100"  style={{ backgroundImage: 'url(/bg1.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} >
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
         <form onSubmit={handleSubmit}>
@@ -136,7 +136,7 @@ const SignUp = () => {
             />
           </div>
           {message && <p className="text-red-500 mb-4">{message}</p>}
-          <button className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          <button className="w-full p-2 bg-orange-500 text-white rounded hover:bg-orange-600">
             Sign Up
           </button>
         </form>

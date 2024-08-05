@@ -85,7 +85,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-orange-50">
+    <div className="flex flex-col min-h-screen bg-orange-50" style={{ backgroundImage: 'url(/bg5.jpg)' }} >
       <div className="p-4 max-w-md mx-auto bg-white shadow-lg rounded-lg flex-grow">
         <h2 className="text-2xl font-bold mb-4 text-orange-600">Profile</h2>
 

@@ -47,11 +47,21 @@ export default function Dashboard() {
       console.error('Error saving user data: ', error);
     }
   };
+   const handleSignOut = async () => {
+    try {
+      await signOut(getAuth());
+      router.push('/auth_login');
+    } catch (error) {
+      console.error('Error signing out: ', error);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
-      <h1 className="text-4xl font-bold mb-4">Welcome, {name}!</h1>
-          <p className="text-lg mb-6">We’re glad to have you here.</p>.
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100" style={{ backgroundImage: 'url(/bg6.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <h1 className="text-4xl font-bold mb-4 font-bold text-orange-600">Hi {name}</h1>
+      <p className="text-lg  font-semibold text-orange-600">Welcome to the Track Pantry app</p>.
+       <p className="text-lg mb-6   text-orange-600"> your smart solution for managing your pantry, groceries, and recipes effortlessly!</p>.
+     
               <p>Please let us know a bit about your food preferences:
              </p>
       <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md mb-6">
@@ -91,7 +101,7 @@ export default function Dashboard() {
 
         <button
           onClick={handleGetStarted}
-          className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="w-full p-2 bg-orange-500 text-white rounded hover:bg-orange-600"
         >
           Get Started
         </button>

@@ -1,10 +1,14 @@
-"use client"
+"use client";
 
 import { useState } from 'react';
 import { Button, Container, Typography, Box } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 
 const slides = [
+  {
+    title: '',
+    image: '/trackpantry.jpg',
+  },
   {
     title: 'Track Your Pantry',
     description: 'Easily keep track of what’s in your pantry and know when to restock.',
@@ -34,34 +38,51 @@ const Walkthrough = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="md" sx={{ backgroundColor: 'white', borderRadius: 2, padding: 4 }}>
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          mt: 8,
+          mt: 4,
+          textAlign: 'center',
         }}
       >
-        <Typography component="h1" variant="h5">
-          {slides[currentSlide].title}
-        </Typography>
+        {slides[currentSlide].title && (
+          <Typography component="h1" variant="h4" sx={{ mb: 2 }}>
+            {slides[currentSlide].title}
+          </Typography>
+        )}
         <Box
           sx={{
-            mt: 2,
             mb: 4,
-            textAlign: 'center',
+            position: 'relative',
+            width: '100%',
+            height: 0,
+            paddingTop: '56.25%', // Aspect ratio 16:9
+            overflow: 'hidden',
+            borderRadius: 2,
+            backgroundColor: 'grey.100',
           }}
         >
           <img
             src={slides[currentSlide].image}
             alt={slides[currentSlide].title}
-            style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
           />
-          <Typography variant="body1" sx={{ mt: 2 }}>
+        </Box>
+        {slides[currentSlide].description && (
+          <Typography variant="body1" sx={{ mb: 4 }}>
             {slides[currentSlide].description}
           </Typography>
-        </Box>
+        )}
         <Button
           variant="contained"
           endIcon={<ArrowForwardIcon />}

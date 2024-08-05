@@ -5,7 +5,11 @@ import { db } from "../../config/firebase.js";
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useUser } from "@/app/UserContext/page.js"; // Adjust the path accordingly
-import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
+import { FaHome, FaList, FaUtensils, FaUser, FaStore ,FaSignOutAlt} from 'react-icons/fa';
+import { signOut } from 'firebase/auth';
+
+const categories = ["Fridge", "Shelf", "Cleaning"]; 
+const units = [ "Liters", "Kg", "Grams", "Dozen"];
 
 const Pantry = () => {
   const user = useUser();
@@ -86,164 +90,179 @@ const Pantry = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push('/auth_login');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+
   const filteredItems = items.filter(item =>
     (selectedCategory === "All" || item.category === selectedCategory) &&
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="p-4 w-full max-w-md mx-auto bg-white shadow-lg rounded-lg mt-6">
-      <h2 className="text-2xl font-bold mb-4">Pantry Items</h2>
+    <div className="relative min-h-screen flex flex-col bg-cover bg-center" style={{ backgroundImage: 'url(/bg5.jpg)' }}>
+      <button
+        onClick={handleSignOut}
+        className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded hover:bg-red-600"
+      >
+        <FaSignOutAlt size={20} />
+      </button>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search items..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded"
-        />
+      <div className="flex-1 p-4 w-full max-w-4xl mx-auto shadow-lg rounded-lg mt-6">
+        <h2 className="text-2xl font-bold mb-4 text-orange-600">Pantry Items</h2>
+
+        {/* Item count display */}
+        <p className="text-lg mb-4">Total Items: {items.length}</p>
+
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search items..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </div>
+
+        <div className="mb-4">
+          <nav className="flex flex-wrap gap-2 mb-4">
+            {["All", ...categories].map(category => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`p-2 ${selectedCategory === category ? 'bg-orange-500 text-white' : 'bg-gray-300'} rounded`}
+              >
+                {category}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {saveMessage && <p className="text-orange-500 mb-4">{saveMessage}</p>}
+
+        <div className="flex flex-wrap gap-4 mb-4">
+          <button
+            onClick={() => router.push('/addItem')}
+            className="w-full sm:w-auto p-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+          >
+            Add Item
+          </button>
+          <button
+            onClick={() => router.push('/recipes')}
+            className="w-full sm:w-auto p-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+          >
+            Get Recipe Suggestions
+          </button>
+        </div>
+
+        {filteredItems.length === 0 ? (
+          <p>No items found.</p>
+        ) : (
+          filteredItems.map(item => (
+            <div key={item.id} className="mb-4 p-4 shadow-sm bg-white rounded">
+              {editItemId === item.id ? (
+                <>
+                  <div className="mb-4">
+                    <label className="block mb-2 font-semibold">Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={editItem.name}
+                      onChange={(e) => handleChange(e, setEditItem)}
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block mb-2 font-semibold">Quantity</label>
+                    <input
+                      type="number"
+                      name="quantity"
+                      value={editItem.quantity}
+                      onChange={(e) => handleChange(e, setEditItem)}
+                      className="w-full p-2 border border-gray-300 rounded"
+                    />
+                  </div>
+                   <div className="mb-4">
+                    <label className="block mb-2 font-semibold">Unit</label>
+                    <select
+                      name="unit"
+                      value={editItem.unit}
+                      onChange={(e) => handleChange(e, setEditItem)}
+                      className="w-full p-2 border border-gray-300 rounded"
+                      required
+                    >
+                      <option value="">Select a unit</option>
+                      {units.map(unit => (
+                        <option key={unit} value={unit}>{unit}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block mb-2 font-semibold">Category</label>
+                    <select
+                      name="category"
+                      value={editItem.category}
+                      onChange={(e) => handleChange(e, setEditItem)}
+                      className="w-full p-2 border border-gray-300 rounded"
+                      required
+                    >
+                      <option value="">Select a category</option>
+                      {categories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <button
+                    onClick={handleSaveChanges}
+                    className="w-full p-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+                  >
+                    Save Changes
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p><strong>Name:</strong> {item.name}</p>
+                  <p><strong>Quantity:</strong> {item.quantity}</p>
+                  <p><strong>Unit:</strong> {item.unit}</p>
+                  <p><strong>Category:</strong> {item.category}</p>
+                  <button
+                    onClick={() => handleEditItem(item.id)}
+                    className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteItem(item.id)}
+                    className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+            </div>
+          ))
+        )}
       </div>
-
-      <div className="mb-4">
-        <nav className="flex space-x-4 mb-4">
-          {["All", "Fridge", "Shelf", "Cleaning"].map(category => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`p-2 ${selectedCategory === category ? 'bg-orange-500 text-white' : 'bg-gray-200'} rounded`}
-            >
-              {category}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {saveMessage && <p className="text-green-500 mb-4">{saveMessage}</p>}
-
-      <div className="mb-4">
-        <button
-          onClick={() => router.push('/addItem')}
-          className="w-full p-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-        >
-          Add Item
-        </button>
-      </div>
-
-      <div className="mb-4">
-        <button
-          onClick={() => router.push('/recipes')}
-          className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          Get Recipe Suggestions
-        </button>
-      </div>
-
-      {filteredItems.length === 0 ? (
-        <p>No items found.</p>
-      ) : (
-        filteredItems.map(item => (
-          <div key={item.id} className="mb-4 p-4 border rounded shadow-sm">
-            {editItemId === item.id ? (
-              <>
-                <div className="mb-4">
-                  <label className="block mb-2 font-semibold">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={editItem.name}
-                    onChange={(e) => handleChange(e, setEditItem)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2 font-semibold">Quantity</label>
-                  <input
-                    type="number"
-                    name="quantity"
-                    value={editItem.quantity}
-                    onChange={(e) => handleChange(e, setEditItem)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2 font-semibold">Unit</label>
-                  <input
-                    type="text"
-                    name="unit"
-                    value={editItem.unit}
-                    onChange={(e) => handleChange(e, setEditItem)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-2 font-semibold">Category</label>
-                  <input
-                    type="text"
-                    name="category"
-                    value={editItem.category}
-                    onChange={(e) => handleChange(e, setEditItem)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                  />
-                </div>
-                <button
-                  onClick={handleSaveChanges}
-                  className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
-                >
-                  Save Changes
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="flex items-center mb-2">
-                  <label className="w-24 font-semibold">Name:</label>
-                  <span>{item.name}</span>
-                </div>
-                <div className="flex items-center mb-2">
-                  <label className="w-24 font-semibold">Quantity:</label>
-                  <span>{item.quantity}</span>
-                </div>
-                <div className="flex items-center mb-2">
-                  <label className="w-24 font-semibold">Unit:</label>
-                  <span>{item.unit}</span>
-                </div>
-                <div className="flex items-center mb-2">
-                  <label className="w-24 font-semibold">Category:</label>
-                  <span>{item.category}</span>
-                </div>
-                <button
-                  onClick={() => handleEditItem(item.id)}
-                  className="mr-2 p-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteItem(item.id)}
-                  className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              </>
-            )}
-          </div>
-        ))
-      )}
-      
-      <nav className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4 flex justify-around">
-        <button onClick={() => router.push('/home')} className="text-gray-600 hover:text-orange-500">
+      <nav className="fixed bottom-0 left-0 w-full bg-white shadow-md p-4 flex justify-around border-t border-gray-200">
+        <button onClick={() => router.push('/home')} className="text-gray-600">
           <FaHome size={24} />
         </button>
-        <button onClick={() => router.push('/pantry')} className="text-gray-600 hover:text-orange-500">
+        <button onClick={() => router.push('/pantry')} className="text-gray-600">
+          <FaStore size={24} />
+        </button>
+        <button onClick={() => router.push('/shopping')} className="text-gray-600">
           <FaList size={24} />
         </button>
-        <button onClick={() => router.push('/recipes')} className="text-gray-600 hover:text-orange-500">
+        <button onClick={() => router.push('/recipes')} className="text-gray-600">
           <FaUtensils size={24} />
         </button>
-        <button onClick={() => router.push('/profile')} className="text-gray-600 hover:text-orange-500">
+        <button onClick={() => router.push('/profile')} className="text-gray-600">
           <FaUser size={24} />
-        </button>
-        <button onClick={() => router.push('/store')} className="text-gray-600 hover:text-orange-500">
-          <FaStore size={24} />
         </button>
       </nav>
     </div>

@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation.js"; // Correct import for Next.js
-import { db } from "../../config/firebase.js";
+import { useRouter } from "next/navigation"; // Correct import for Next.js
+import { db } from "../../config/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
 import Image from "next/image";
-import { useUser } from "@/app/UserContext/page.js"; // Adjust import path
+import { useUser } from "@/app/UserContext/page"; // Adjust import path
+
+const categories = ["Fridge", "Shelf", "Cleaning"];
+const units = [ "Liters", "Kg", "Grams", "Dozen"];
 
 const AddItem = () => {
   const [name, setName] = useState("");
@@ -47,7 +50,7 @@ const AddItem = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen pb-16">
+    <div className="flex flex-col min-h-screen pb-16" style={{ backgroundImage: 'url(/bg5.jpg)' }}>
       <div className="p-4 w-full max-w-md mx-auto bg-white shadow-lg rounded-lg mt-6 flex-grow">
         <nav className="flex mb-6">
           <button
@@ -101,13 +104,17 @@ const AddItem = () => {
 
         <div className="mb-4">
           <label className="block mb-2 font-semibold">Unit</label>
-          <input
-            type="text"
+          <select
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded"
             required
-          />
+          >
+            <option value="">Select a unit</option>
+            {units.map((unitOption) => (
+              <option key={unitOption} value={unitOption}>{unitOption}</option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-4">
@@ -119,9 +126,9 @@ const AddItem = () => {
             required
           >
             <option value="">Select a category</option>
-            <option value="Fridge">Fridge</option>
-            <option value="Shelf">Shelf</option>
-            <option value="Cleaning">Cleaning</option>
+            {categories.map((categoryOption) => (
+              <option key={categoryOption} value={categoryOption}>{categoryOption}</option>
+            ))}
           </select>
         </div>
 

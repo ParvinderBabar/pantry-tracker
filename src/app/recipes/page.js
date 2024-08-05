@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { db } from "../../config/firebase.js";
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { getAuth } from "firebase/auth";
+import { getAuth, signOut } from "firebase/auth";
 import { useRouter } from 'next/navigation';
-import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
+import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt } from 'react-icons/fa';
 
 const fetchUserItems = async (userId) => {
   try {
@@ -45,9 +45,9 @@ const RecipeSuggestions = () => {
     if (currentUser) {
       setUserId(currentUser.uid);
     } else {
-      window.location.href = '/auth_login';
+      router.push('/auth_login');
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!userId) return;
@@ -65,11 +65,26 @@ const RecipeSuggestions = () => {
     getRecipes();
   }, [userId]);
 
+  const handleSignOut = async () => {
+    try {
+      await signOut(getAuth());
+      router.push('/auth_login');
+    } catch (error) {
+      console.error('Error signing out: ', error);
+    }
+  };
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="p-4 w-full max-w-md mx-auto bg-white shadow-lg rounded-lg mt-6 flex-1">
+    <div className="flex flex-col min-h-screen bg-cover bg-center" style={{ backgroundImage: 'url(/bg5.jpg)' }}>
+      <div className="flex-1 p-4 w-full max-w-7xl mx-auto bg-white shadow-lg rounded-lg mt-6 relative">
+        <button 
+          onClick={handleSignOut} 
+          className="absolute top-4 right-4 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+        >
+          <FaSignOutAlt size={20} />
+        </button>
         <h2 className="text-2xl font-bold mb-4 text-orange-600">Recipe Suggestions</h2>
-        
+
         {recipes.length === 0 ? (
           <p className="text-gray-700">No recipes found. Please add some items to your pantry.</p>
         ) : (
@@ -79,13 +94,13 @@ const RecipeSuggestions = () => {
                 <h3 className="text-xl font-semibold text-orange-600">{recipe.title}</h3>
                 <p className="text-gray-700">Ready in {recipe.readyInMinutes} minutes</p>
                 <a href={recipe.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">View Recipe</a>
-                <img src={recipe.image} alt={recipe.title} className="mt-2 w-full h-40 object-cover rounded-md" />
+                <img src={recipe.image} alt={recipe.title} className="mt-2 w-full h-48 object-cover rounded-md" />
                 <div className="mt-2">
                   <h4 className="font-semibold text-orange-600">Used Ingredients:</h4>
                   <ul className="flex flex-wrap gap-2">
                     {recipe.usedIngredients?.map(ingredient => (
                       <li key={ingredient.id} className="flex items-center mt-1 bg-gray-100 p-2 rounded-md">
-                        <img src={ingredient.image} alt={ingredient.name} className="w-10 h-10 object-cover mr-2 rounded-full" />
+                        <img src={ingredient.image} alt={ingredient.name} className="w-12 h-12 object-cover mr-2 rounded-full" />
                         <span>{ingredient.name}</span>
                       </li>
                     ))}
@@ -94,7 +109,7 @@ const RecipeSuggestions = () => {
                   <ul className="flex flex-wrap gap-2">
                     {recipe.missedIngredients?.map(ingredient => (
                       <li key={ingredient.id} className="flex items-center mt-1 bg-gray-100 p-2 rounded-md">
-                        <img src={ingredient.image} alt={ingredient.name} className="w-10 h-10 object-cover mr-2 rounded-full" />
+                        <img src={ingredient.image} alt={ingredient.name} className="w-12 h-12 object-cover mr-2 rounded-full" />
                         <span>{ingredient.name} ({ingredient.original})</span>
                       </li>
                     ))}
