@@ -157,7 +157,14 @@ const HomePage = () => {
         <div className="p-4 bg-yellow-200 rounded-lg shadow-md flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold">Recipes</h2>
-            <p className="text-lg">{recipes.length} Recipes</p>
+            <p className="text-lg">AI Recipe Generator for your Assistance</p>
+            <button 
+                onClick={() => router.push('/generateRecipePage')} 
+                className="mt-2 text-blue-600 hover:underline flex items-center"
+              >
+                checkout here
+                <FaArrowRight className="ml-1" />
+              </button>
           </div>
           <FaUtensils size={24} />
         </div>

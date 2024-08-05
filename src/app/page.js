@@ -1,8 +1,7 @@
 // pages/index.js or app/page.js depending on your Next.js version
 import React from 'react';
-import Walkthrough from '@/Components/Walkthrough';
-import ShoppingListPage from '@/Components/ShoppingListPage.js';
-import { UserProvider } from '@/Contexts/UserContexts.js'; // Make sure this path is correct
+import Walkthrough from '../Components/Walkthrough.js';
+import { UserProvider } from"../Contexts/UserContexts.js" // Make sure this path is correct
 import { ThemeProvider } from '@mui/material';
 
 // import CssBaseline from '@mui/material';

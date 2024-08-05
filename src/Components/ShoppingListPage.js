@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { db } from "@/config/firebase.js";
+import { db } from "../config/firebase.js";
 import { collection, addDoc, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore";
 import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaPlusCircle, FaEdit, FaTrash, FaMinus, FaPlus, FaCaretDown, FaArrowLeft, FaSignOutAlt } from 'react-icons/fa';
-import { useUser } from "@/Contexts/UserContexts.js";
+import { useUser } from "../Contexts/UserContexts.js";
 import { signOut } from "firebase/auth";
-import { auth } from "@/config/firebase.js";
+import { auth } from "../config/firebase.js";
 
 const AddShoppingList = () => {
   const [listName, setListName] = useState("");

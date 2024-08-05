@@ -6,7 +6,7 @@ import { db } from "../../config/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
 import Image from "next/image";
-import { useUser } from "@/Contexts/UserContexts.js"; // Adjust import path
+import { useUser } from "../../Contexts/UserContexts.js"; // Adjust import path
 
 const categories = ["Fridge", "Shelf", "Cleaning"];
 const units = [ "None","Liters", "Kg", "Grams", "Dozen"];

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { db } from "../../config/firebase.js";
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { useUser } from "@/Contexts/UserContexts.js"; // Adjust the path accordingly
+import { useUser } from "../../Contexts/UserContexts.js"; 
 import { FaHome, FaList, FaUtensils, FaUser, FaStore ,FaSignOutAlt} from 'react-icons/fa';
 import { signOut } from 'firebase/auth';
 
@@ -18,7 +18,9 @@ const Pantry = () => {
   const userId = auth.currentUser?.uid;
   
   const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({ name: "", quantity: "", unit: "", category: "" });
+  const [newItem, setNewItem] = useState({
+    name: "", quantity: "", unit: "", category:""
+  });
   const [editItemId, setEditItemId] = useState(null);
   const [editItem, setEditItem] = useState({ name: "", quantity: "", unit: "", category: "" });
   const [searchQuery, setSearchQuery] = useState("");

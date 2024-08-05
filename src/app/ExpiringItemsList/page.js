@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/config/firebase.js';
+import { db } from '../../config/firebase.js';
 import { useRouter } from 'next/navigation';
 import { getAuth } from 'firebase/auth';
 import { FaArrowLeft } from 'react-icons/fa';

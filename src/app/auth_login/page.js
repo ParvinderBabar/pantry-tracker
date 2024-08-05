@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/config/firebase.js"; // Import from your Firebase config
+import { auth } from "../../config/firebase.js"; // Import from your Firebase config
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Login = () => {
