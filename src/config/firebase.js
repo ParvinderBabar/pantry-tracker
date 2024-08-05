@@ -49,4 +49,4 @@ if (typeof window !== 'undefined') { // Ensure this code only runs on the client
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export { analytics };
+export { analytics, app };

@@ -6,10 +6,10 @@ import { db } from "../../config/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
 import Image from "next/image";
-import { useUser } from "@/app/UserContext/page"; // Adjust import path
+import { useUser } from "@/Contexts/UserContexts.js"; // Adjust import path
 
 const categories = ["Fridge", "Shelf", "Cleaning"];
-const units = [ "Liters", "Kg", "Grams", "Dozen"];
+const units = [ "None","Liters", "Kg", "Grams", "Dozen"];
 
 const AddItem = () => {
   const [name, setName] = useState("");
@@ -24,31 +24,40 @@ const AddItem = () => {
   const router = useRouter();
   const user = useUser();
 
+  // 
   const handleSave = async () => {
-    if (!user || !user.uid) {
-      console.error("User is not authenticated or user.uid is missing.");
-      return;
-    }
+  if (!user || !user.uid) {
+    console.error("User is not authenticated or user.uid is missing.");
+    return;
+  }
 
-    try {
-      await addDoc(collection(db, "items"), {
-        name,
-        quantity,
-        unit,
-        category,
-        location,
-        expirationDate: new Date(expirationDate), // Store as Date object
-        notification,
-        userId: user.uid,
-        imageUrl: image ? URL.createObjectURL(image) : null,
-      });
-      setSaveMessage("Item added successfully!");
-      router.push("/pantry");
-    } catch (error) {
-      console.error("Error adding document: ", error);
-      setSaveMessage("Failed to add item. Please try again.");
-    }
-  };
+  // Validate expiration date
+  const isValidDate = !isNaN(new Date(expirationDate).getTime());
+  if (!isValidDate) {
+    console.error("Invalid expiration date:", expirationDate);
+    setSaveMessage("Invalid expiration date. Please enter a valid date.");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "items"), {
+      name,
+      quantity,
+      unit,
+      category,
+      location,
+      expirationDate: new Date(expirationDate), // Store as Date object
+      notification,
+      userId: user.uid,
+      imageUrl: image ? URL.createObjectURL(image) : null,
+    });
+    setSaveMessage("Item added successfully!");
+    router.push("/pantry");
+  } catch (error) {
+    console.error("Error adding document: ", error);
+    setSaveMessage("Failed to add item. Please try again.");
+  }
+};
 
   return (
     <div className="flex flex-col min-h-screen pb-16" style={{ backgroundImage: 'url(/bg5.jpg)' }}>

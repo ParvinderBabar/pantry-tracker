@@ -5,7 +5,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase.js';
 import { useRouter } from 'next/navigation';
 import { getAuth, signOut } from 'firebase/auth';
-import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt, FaArrowRight } from 'react-icons/fa';
 
 const HomePage = () => {
   const [items, setItems] = useState([]);
@@ -13,10 +13,11 @@ const HomePage = () => {
   const [pantryCount, setPantryCount] = useState(0);
   const [recipes, setRecipes] = useState([]);
   const [shoppingLists, setShoppingLists] = useState([]);
-  const [expiringItemsCount, setExpiringItemsCount] = useState(0);
+  const [expiredCount, setExpiredCount] = useState(0);
+  const [expiringItems, setExpiringItems] = useState([]);
   const router = useRouter();
   const auth = getAuth();
-  const userId = auth.currentUser?.uid; // Get user ID
+  const userId = auth.currentUser?.uid;
 
   useEffect(() => {
     if (!userId) {
@@ -24,20 +25,40 @@ const HomePage = () => {
       return;
     }
 
+    const fetchExpiredProducts = async () => {
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+      try {
+        const q = query(collection(db, "items"), 
+          where("expirationDate", "<=", endOfMonth), 
+          where("expirationDate", ">=", startOfMonth),
+          where('userId', '==', userId)
+        );
+        const querySnapshot = await getDocs(q);
+        const expiringItemsArray = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          const expirationDate = new Date(data.expirationDate.seconds * 1000);
+          return { id: doc.id, ...data, expirationDate };
+        });
+        setExpiringItems(expiringItemsArray);
+        setExpiredCount(expiringItemsArray.length);
+      } catch (error) {
+        console.error("Error fetching expired products: ", error);
+      }
+    };
+
     const fetchItems = async () => {
       try {
         const today = new Date();
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-        const startOfMonthString = startOfMonth.toISOString().split('T')[0];
-        const endOfMonthString = endOfMonth.toISOString().split('T')[0];
-
-        const q = query(
-          collection(db, 'items'),
+        const q = query(collection(db, 'items'), 
           where('userId', '==', userId),
-          where('expirationDate', '>=', startOfMonthString),
-          where('expirationDate', '<=', endOfMonthString)
+          where('expirationDate', '>=', startOfMonth),
+          where('expirationDate', '<=', endOfMonth)
         );
 
         const querySnapshot = await getDocs(q);
@@ -48,7 +69,7 @@ const HomePage = () => {
         });
 
         setItems(itemsArray);
-        setExpiringItemsCount(itemsArray.length);
+        setExpiredCount(itemsArray.length);
       } catch (error) {
         console.error('Error fetching items: ', error);
       }
@@ -93,6 +114,7 @@ const HomePage = () => {
       }
     };
 
+    fetchExpiredProducts();
     fetchItems();
     fetchShoppingLists();
     fetchPantryCount();
@@ -118,64 +140,52 @@ const HomePage = () => {
       </button>
       <h1 className="text-4xl font-bold mb-4 text-orange-600">Welcome to Your Pantry Tracker!</h1>
       <div className="w-full max-w-5xl bg-white p-6 rounded-lg shadow-md mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="p-4 bg-blue-200 rounded-lg shadow-md h-60 flex flex-col">
-          <h2 className="text-xl font-semibold mb-2">Items Expiring This Month</h2>
-          <p className="text-3xl font-bold mt-4">{expiringItemsCount} items</p>
-          <ul className="flex-1 overflow-auto">
-            {items.length > 0 ? (
-              items.map(item => (
-                <li key={item.id} className="p-2 border-b border-gray-200">{item.name} - {item.expirationDate.toDateString()}</li>
-              ))
-            ) : (
-              <p>No items expiring this month.</p>
-            )}
-          </ul>
+        <div className="p-4 bg-blue-200 rounded-lg shadow-md flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Pantry Items</h2>
+            <p className="text-lg">{pantryCount} Items</p>
+          </div>
+          <FaList size={24} />
         </div>
-        <div className="p-4 bg-green-200 rounded-lg shadow-md h-60 flex flex-col">
-          <h2 className="text-xl font-semibold mb-2">Shopping List</h2>
-          <p className="text-3xl font-bold mt-4">{shoppingListCount} items</p>
-          <ul className="flex-1 overflow-auto">
-            {shoppingLists.length > 0 ? (
-              shoppingLists.map(list => (
-                <li key={list.id} className="p-2 border-b border-gray-200">{list.listName}</li>
-              ))
-            ) : (
-              <p>No shopping lists available.</p>
-            )}
-          </ul>
+        <div className="p-4 bg-green-200 rounded-lg shadow-md flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Shopping Lists</h2>
+            <p className="text-lg">{shoppingListCount} Items</p>
+          </div>
+          <FaList size={24} />
         </div>
-        <div className="p-4 bg-yellow-200 rounded-lg shadow-md h-60 flex flex-col">
-          <h2 className="text-xl font-semibold mb-2">Total Pantry Items</h2>
-          <p className="text-3xl font-bold mt-4">{pantryCount} items</p>
+        <div className="p-4 bg-yellow-200 rounded-lg shadow-md flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Recipes</h2>
+            <p className="text-lg">{recipes.length} Recipes</p>
+          </div>
+          <FaUtensils size={24} />
         </div>
-        <div className="p-4 bg-red-200 rounded-lg shadow-md h-60 flex flex-col justify-between">
-          <h2 className="text-xl font-semibold mb-2">Recipes</h2>
-          <ul className="flex-1 overflow-auto">
-            {recipes.length > 0 ? (
-              recipes.map(recipe => (
-                <li key={recipe.id} className="p-2 border-b border-gray-200">{recipe.name}</li>
-              ))
-            ) : (
-              <p>No recipes available right now.</p>
+        <div className="p-4 bg-red-200 rounded-lg shadow-md flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Expiring Items</h2>
+            <p className="text-lg">{expiredCount} Items</p>
+            {expiredCount > 3 && (
+              <button 
+                onClick={() => router.push('/ExpiringItemsList')} 
+                className="mt-2 text-blue-600 hover:underline flex items-center"
+              >
+                View All
+                <FaArrowRight className="ml-1" />
+              </button>
             )}
-          </ul>
+          </div>
         </div>
       </div>
-      <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
-        <button onClick={() => router.push("/home")} className="flex items-center">
-          <FaHome className="mr-1" /> 
-        </button>
-        <button onClick={() => router.push("/list")} className="flex items-center">
-          <FaList className="mr-1" /> 
-        </button>
-        <button onClick={() => router.push("/recipes")} className="flex items-center">
-          <FaUtensils className="mr-1" /> 
+      <nav className="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex justify-around">
+        <button onClick={() => router.push("/")} className="flex items-center">
+          <FaHome className="mr-1" />
         </button>
         <button onClick={() => router.push("/profile")} className="flex items-center">
-          <FaUser className="mr-1" /> 
+          <FaUser className="mr-1" />
         </button>
         <button onClick={() => router.push("/pantry")} className="flex items-center">
-          <FaStore className="mr-1" /> 
+          <FaStore className="mr-1" />
         </button>
       </nav>
     </div>

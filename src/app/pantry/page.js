@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { db } from "../../config/firebase.js";
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { useUser } from "@/app/UserContext/page.js"; // Adjust the path accordingly
+import { useUser } from "@/Contexts/UserContexts.js"; // Adjust the path accordingly
 import { FaHome, FaList, FaUtensils, FaUser, FaStore ,FaSignOutAlt} from 'react-icons/fa';
 import { signOut } from 'firebase/auth';
 

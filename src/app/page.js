@@ -2,7 +2,7 @@
 import React from 'react';
 import Walkthrough from '@/Components/Walkthrough';
 import ShoppingListPage from '@/Components/ShoppingListPage.js';
-import { UserProvider } from '@/app/UserContext/page.js'; // Make sure this path is correct
+import { UserProvider } from '@/Contexts/UserContexts.js'; // Make sure this path is correct
 import { ThemeProvider } from '@mui/material';
 
 // import CssBaseline from '@mui/material';
@@ -12,7 +12,7 @@ const Home = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <UserProvider>
        
-      {/* <CssBaseline /> */} 
+     
           <Walkthrough />
          
       
