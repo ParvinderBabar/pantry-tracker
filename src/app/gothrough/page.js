@@ -3,7 +3,7 @@
 import Walkthrough from '../../Components/Walkthrough.js';
 
 const Walkthrough = () => {
-    return <Walkthrough />;
+    // return <Walkthrough />;
     
 };
 
