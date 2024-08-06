@@ -5,7 +5,8 @@ I developed a Pantry Tracker app using Next.js with Material UI components. This
 # Features Implemented
 # CRUD Functionality:
 
-## Add, Delete, and Update Pantry Items: Users can add new items to their pantry, update existing items, and delete items they no longer need.
+# Add, Delete, and Update Pantry Items:
+Users can add new items to their pantry, update existing items, and delete items they no longer need.
 # Search and Filter:
 Users can search for pantry items by location (e.g., fridge, top shelf, bottom shelf, cleaning supplies).
 # User Authentication: 
@@ -20,10 +21,12 @@ Frontend Design:
 A walkthrough feature explains the app's functionalities to new users before they sign up or log in.
 # TailwindCSS 
 The app uses Tailwindcss for a polished and responsive user interface.
-# Navigation: A user-friendly navigation system to browse between different sections of the app.
+# Navigation: 
+A user-friendly navigation system to browse between different sections of the app.
 Backend Implementation:
 
-# Firebase Integration: I used Firebase for real-time data operations, storage, and authentication.
+# Firebase Integration:
+I used Firebase for real-time data operations, storage, and authentication.
 # Indexed Storage and Database: 
 Implemented indexed storage to enhance data retrieval efficiency.
 Deployment:
