@@ -1,4 +1,4 @@
-# [Project 2 | Pantry Tracker App | Difficulty Level 3]
+# [Project 2 | AI Pantry Tracker App]
 # Project Overview
 I developed a Pantry Tracker app using Next.js with Material UI components. This project involved several key tasks, including setting up the project, implementing a Firebase backend for data storage, creating CRUD functionalities, adding search and filter features, and designing a presentable frontend.
 
