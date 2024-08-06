@@ -65,6 +65,10 @@ const PantryItemsList = () => {
           pantryItems.map(item => (
             <div key={item.id} className="p-4 bg-blue-200 rounded-lg shadow-md mb-4">
               <h2 className="text-xl font-semibold">{item.name}</h2>
+              <p className="text-gray-700">Quantity: {item.quantity}</p>
+              {item.quantity < 3 && (
+                <p className="text-red-500 font-semibold">Low quantity! Please restock.</p>
+              )}
             </div>
           ))
         ) : (

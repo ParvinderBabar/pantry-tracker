@@ -1,17 +1,15 @@
-// pages/additem.js
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { db } from "../../config/firebase";
-import { collection, addDoc } from "firebase/firestore";
-// import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
+import { db, collection, addDoc } from "../../config/firebase"; // Ensure this is correctly set up
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Image from "next/image";
 import { useUser } from "../../Contexts/UserContexts.js"; // Adjust import path
-import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt, FaArrowRight, FaShoppingCart } from 'react-icons/fa';
-import { FcExpired } from "react-icons/fc";
+import { FaHome, FaList, FaUtensils, FaUser, FaStore } from 'react-icons/fa';
 
+// Categories and units arrays
 const categories = ["Fridge", "Shelf", "Cleaning"];
-const units = [ "None","Liters", "Kg", "Grams", "Dozen"];
+const units = ["None", "Liters", "Kg", "Grams", "Dozen"];
 
 const AddItem = () => {
   const [name, setName] = useState("");
@@ -21,64 +19,60 @@ const AddItem = () => {
   const [location, setLocation] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
   const [notification, setNotification] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
   const [image, setImage] = useState(null);
+  const [saveMessage, setSaveMessage] = useState("");
   const router = useRouter();
   const user = useUser();
 
-  // 
+  // Initialize Firebase Storage
+  const storage = getStorage();
+
   const handleSave = async () => {
-  if (!user || !user.uid) {
-    console.error("User is not authenticated or user.uid is missing.");
-    return;
-  }
+    if (!user || !user.uid) {
+      console.error("User is not authenticated or user.uid is missing.");
+      return;
+    }
 
-  // Validate expiration date
-  const isValidDate = !isNaN(new Date(expirationDate).getTime());
-  if (!isValidDate) {
-    console.error("Invalid expiration date:", expirationDate);
-    setSaveMessage("Invalid expiration date. Please enter a valid date.");
-    return;
-  }
+    // Validate expiration date
+    const isValidDate = !isNaN(new Date(expirationDate).getTime());
+    if (!isValidDate) {
+      console.error("Invalid expiration date:", expirationDate);
+      setSaveMessage("Invalid expiration date. Please enter a valid date.");
+      return;
+    }
 
-  try {
-    await addDoc(collection(db, "items"), {
-      name,
-      quantity,
-      unit,
-      category,
-      location,
-      expirationDate: new Date(expirationDate), // Store as Date object
-      notification,
-      userId: user.uid,
-      imageUrl: image ? URL.createObjectURL(image) : null,
-    });
-    setSaveMessage("Item added successfully!");
-    router.push("/pantry");
-  } catch (error) {
-    console.error("Error adding document: ", error);
-    setSaveMessage("Failed to add item. Please try again.");
-  }
-};
+    try {
+      let imageUrl = null;
+
+      if (image) {
+        const imageRef = ref(storage, `images/${user.uid}/${Date.now()}_${image.name}`);
+        await uploadBytes(imageRef, image);
+        imageUrl = await getDownloadURL(imageRef);
+      }
+
+      await addDoc(collection(db, "items"), {
+        name,
+        quantity,
+        unit,
+        category,
+        location,
+        expirationDate: new Date(expirationDate),
+        notification,
+        userId: user.uid,
+        imageUrl,
+      });
+
+      setSaveMessage("Item added successfully!");
+      router.push("/pantry");
+    } catch (error) {
+      console.error("Error adding document: ", error);
+      setSaveMessage("Failed to add item. Please try again.");
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen pb-16" style={{ backgroundImage: 'url(/bg5.jpg)' }}>
       <div className="p-4 w-full max-w-md mx-auto bg-white shadow-lg rounded-lg mt-6 flex-grow">
-        <nav className="flex mb-6">
-          <button
-            onClick={() => router.push("/additem?mode=manual")}
-            className="flex-1 p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Manually
-          </button>
-          <button
-            onClick={() => router.push("/additem?mode=scan")}
-            className="flex-1 p-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            Use Camera
-          </button>
-        </nav>
-
         <h2 className="text-2xl font-bold mb-4">Add New Item</h2>
 
         <div className="mb-4">
@@ -189,25 +183,29 @@ const AddItem = () => {
         >
           Save Item
         </button>
+        {saveMessage && (
+          <div className="mt-4 p-2 bg-green-100 text-green-800 border border-green-300 rounded">
+            {saveMessage}
+          </div>
+        )}
       </div>
 
       <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
         <button onClick={() => router.push("/home")} className="flex items-center">
-          <FaHome className="mr-1" /> 
+          <FaHome className="mr-1" />
         </button>
-         <button onClick={() => router.push("/pantry")} className="flex items-center">
-          <FaStore className="mr-1" /> 
+        <button onClick={() => router.push("/pantry")} className="flex items-center">
+          <FaStore className="mr-1" />
         </button>
         <button onClick={() => router.push("/list")} className="flex items-center">
-          <FaList className="mr-1" /> 
+          <FaList className="mr-1" />
         </button>
         <button onClick={() => router.push("/recipes")} className="flex items-center">
-          <FaUtensils className="mr-1" /> 
+          <FaUtensils className="mr-1" />
         </button>
         <button onClick={() => router.push("/profile")} className="flex items-center">
-          <FaUser className="mr-1" /> 
+          <FaUser className="mr-1" />
         </button>
-       
       </nav>
     </div>
   );

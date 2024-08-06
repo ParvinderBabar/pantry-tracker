@@ -1,10 +1,11 @@
-"use client";
+"use client"
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { db } from "../../config/firebase.js";
+import { db, storage } from "../../config/firebase";
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getAuth } from "firebase/auth";
-import { useUser } from "../../Contexts/UserContexts.js"; 
+import { useUser } from "../../Contexts/UserContexts";
 import { FaHome, FaList, FaUtensils, FaUser, FaStore, FaSignOutAlt, FaEdit, FaTrash } from 'react-icons/fa';
 import { signOut } from 'firebase/auth';
 
@@ -16,16 +17,15 @@ const Pantry = () => {
   const router = useRouter();
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
-  
+
   const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({
-    name: "", quantity: "", unit: "", category:""
-  });
+  const [newItem, setNewItem] = useState({ name: "", quantity: "", unit: "", category: "", imageUrl: "" });
   const [editItemId, setEditItemId] = useState(null);
-  const [editItem, setEditItem] = useState({ name: "", quantity: "", unit: "", category: "" });
+  const [editItem, setEditItem] = useState({ name: "", quantity: "", unit: "", category: "", imageUrl: "" });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [saveMessage, setSaveMessage] = useState("");
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     if (!userId) {
@@ -48,47 +48,33 @@ const Pantry = () => {
     setter(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAddItem = async () => {
-    if (!userId) return;
-
-    try {
-      await addDoc(collection(db, "items"), { ...newItem, userId });
-      setNewItem({ name: "", quantity: "", unit: "", category: "" });
-      setSaveMessage("Item added successfully!");
-    } catch (error) {
-      console.error("Error adding document: ", error);
-    }
-  };
-
-  const handleEditItem = (id) => {
-    setEditItemId(id);
-    const itemToEdit = items.find(item => item.id === id);
-    if (itemToEdit) {
-      setEditItem(itemToEdit);
-    }
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
   };
 
   const handleSaveChanges = async () => {
     try {
-      await updateDoc(doc(db, "items", editItemId), editItem);
-      setItems(prevItems => 
-        prevItems.map(item => (item.id === editItemId ? { id: editItemId, ...editItem } : item))
+      let imageUrl = editItem.imageUrl;
+
+      if (file) {
+        const storageRef = ref(storage, `images/${file.name}`);
+        await uploadBytes(storageRef, file);
+        imageUrl = await getDownloadURL(storageRef);
+      }
+
+      await updateDoc(doc(db, "items", editItemId), { ...editItem, imageUrl });
+
+      setItems(prevItems =>
+        prevItems.map(item => (item.id === editItemId ? { id: editItemId, ...editItem, imageUrl } : item))
       );
+
       setEditItemId(null);
-      setEditItem({ name: "", quantity: "", unit: "", category: "" });
+      setEditItem({ name: "", quantity: "", unit: "", category: "", imageUrl: "" });
+      setFile(null);
       setSaveMessage("Changes saved successfully!");
     } catch (error) {
       console.error("Error updating document: ", error);
       setSaveMessage("Error saving changes.");
-    }
-  };
-
-  const handleDeleteItem = async (id) => {
-    try {
-      await deleteDoc(doc(db, "items", id));
-      setItems(prevItems => prevItems.filter(item => item.id !== id));
-    } catch (error) {
-      console.error("Error deleting document: ", error);
     }
   };
 
@@ -118,7 +104,6 @@ const Pantry = () => {
       <div className="flex-1 p-4 w-full max-w-4xl mx-auto shadow-lg rounded-lg mt-6">
         <h2 className="text-2xl font-bold mb-4 text-orange-600">Pantry Items</h2>
 
-        {/* Item count display */}
         <p className="text-lg mb-4">Total Items: {items.length}</p>
 
         <div className="mb-4">
@@ -165,114 +150,139 @@ const Pantry = () => {
         {filteredItems.length === 0 ? (
           <p>No items found.</p>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <ul className="divide-y divide-gray-300 bg-white">
             {filteredItems.map(item => (
-              <div key={item.id} className="flex items-center p-4 bg-white rounded shadow-md">
-                <div className="flex-grow">
-                  {editItemId === item.id ? (
-                    <>
-                      <div className="mb-2">
-                        <input
-                          type="text"
-                          name="name"
-                          value={editItem.name}
-                          onChange={(e) => handleChange(e, setEditItem)}
-                          className="w-full p-2 border rounded"
-                          placeholder="Item Name"
-                        />
-                      </div>
-                      <div className="mb-2">
-                        <input
-                          type="number"
-                          name="quantity"
-                          value={editItem.quantity}
-                          onChange={(e) => handleChange(e, setEditItem)}
-                          className="w-full p-2 border rounded"
-                          placeholder="Quantity"
-                        />
-                      </div>
-                      <div className="mb-2">
-                        <select
-                          name="unit"
-                          value={editItem.unit}
-                          onChange={(e) => handleChange(e, setEditItem)}
-                          className="w-full p-2 border rounded"
-                        >
-                          <option value="">Select a unit</option>
-                          {units.map(unit => (
-                            <option key={unit} value={unit}>{unit}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="mb-2">
-                        <select
-                          name="category"
-                          value={editItem.category}
-                          onChange={(e) => handleChange(e, setEditItem)}
-                          className="w-full p-2 border rounded"
-                        >
-                          <option value="">Select a category</option>
-                          {categories.map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <button
-                        onClick={handleSaveChanges}
-                        className="w-full p-2 bg-orange-500 text-white rounded hover:bg-orange-600"
-                      >
-                        Save Changes
-                      </button>
-                    </>
+              <li key={item.id} className="py-2 flex items-center bg-white m-2">
+                <div className="flex-shrink-0 w-16 h-16 mr-4 bg-white" >
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover rounded" />
                   ) : (
-                    <div className="flex justify-between items-center w-full">
-                      <div>
-                        <p className="font-semibold text-lg">{item.name}</p>
-                        <p className="text-sm text-gray-600">Quantity: {item.quantity} {item.unit}</p>
-                        <p className="text-sm text-gray-600">Category: {item.category}</p>
-                      </div>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEditItem(item.id)}
-                          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteItem(item.id)}
-                          className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </div>
+                    <div className="w-full h-full bg-gray-300 rounded"></div>
                   )}
                 </div>
-              </div>
+                <div className="flex-grow">
+                  <h3 className="text-lg font-bold">{item.name}</h3>
+                  <p>Quantity: {item.quantity} {item.unit}</p>
+                  <p>Category: {item.category}</p>
+                </div>
+                <button
+                  onClick={() => { setEditItemId(item.id); setEditItem(item); }}
+                  className="ml-4 text-blue-500"
+                >
+                  <FaEdit size={20} />
+                </button>
+                <button
+                  onClick={async () => {
+                    await deleteDoc(doc(db, "items", item.id));
+                    setItems(prevItems => prevItems.filter(i => i.id !== item.id));
+                  }}
+                  className="ml-4 text-red-500"
+                >
+                  <FaTrash size={20} />
+                </button>
+              </li>
             ))}
+          </ul>
+        )}
+
+        {editItemId && (
+          <div className="fixed top-0 left-0 w-full h-full bg-white z-50 p-6">
+            <h2 className="text-xl font-bold mb-4">Edit Item</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveChanges();
+              }}
+            >
+              <div className="mb-4">
+                <label className="block mb-2">Item Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editItem.name}
+                  onChange={(e) => handleChange(e, setEditItem)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2">Quantity</label>
+                <input
+                  type="text"
+                  name="quantity"
+                  value={editItem.quantity}
+                  onChange={(e) => handleChange(e, setEditItem)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2">Unit</label>
+                <select
+                  name="unit"
+                  value={editItem.unit}
+                  onChange={(e) => handleChange(e, setEditItem)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                >
+                  {units.map(unit => (
+                    <option key={unit} value={unit}>{unit}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2">Category</label>
+                <select
+                  name="category"
+                  value={editItem.category}
+                  onChange={(e) => handleChange(e, setEditItem)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                >
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block mb-2">Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+              </div>
+              <button
+                type="submit"
+                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Save Changes
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditItemId(null)}
+                className="ml-4 p-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+            </form>
           </div>
         )}
       </div>
-
-      <nav className="fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg">
-        <div className="flex justify-around">
-          <button onClick={() => router.push("/home")} className="text-gray-600 hover:text-orange-500">
-            <FaHome size={24} />
-          </button>
-           <button onClick={() => router.push("/pantry")} className="text-gray-600 hover:text-orange-500">
-            <FaStore size={24} />
-          </button>
-          <button onClick={() => router.push("/list")} className="text-gray-600 hover:text-orange-500">
-            <FaList size={24} />
-          </button>
-          <button onClick={() => router.push("/recipes")} className="text-gray-600 hover:text-orange-500">
-            <FaUtensils size={24} />
-          </button>
-         
-          <button onClick={() => router.push("/profile")} className="text-gray-600 hover:text-orange-500">
-            <FaUser size={24} />
-          </button>
-        </div>
+      <nav className="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-around">
+        <button onClick={() => router.push("/home")} className="flex items-center">
+          <FaHome className="mr-1" /> 
+        </button>
+         <button onClick={() => router.push("/pantry")} className="flex items-center">
+          <FaStore className="mr-1" /> 
+        </button>
+        <button onClick={() => router.push("/list")} className="flex items-center">
+          <FaList className="mr-1" /> 
+        </button>
+        <button onClick={() => router.push("/recipes")} className="flex items-center">
+          <FaUtensils className="mr-1" /> 
+        </button>
+        <button onClick={() => router.push("/profile")} className="flex items-center">
+          <FaUser className="mr-1" /> 
+        </button>
+       
       </nav>
     </div>
   );
