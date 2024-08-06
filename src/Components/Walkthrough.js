@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button, Container, Typography, Box } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
 
 const slides = [
   {
@@ -28,12 +29,13 @@ const slides = [
 
 const Walkthrough = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const router = useRouter();
 
   const nextSlide = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      window.location.href = '/auth_login'; // Redirect to signup page
+      router.push('/auth_login'); // Redirect to signup page using Next.js router
     }
   };
 
