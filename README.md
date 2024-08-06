@@ -1,17 +1,17 @@
-[Project 2 | Pantry Tracker App | Difficulty Level 3]
-## Project Overview
+# [Project 2 | Pantry Tracker App | Difficulty Level 3]
+# Project Overview
 I developed a Pantry Tracker app using Next.js with Material UI components. This project involved several key tasks, including setting up the project, implementing a Firebase backend for data storage, creating CRUD functionalities, adding search and filter features, and designing a presentable frontend.
 
 # Features Implemented
 # CRUD Functionality:
 
-# Add, Delete, and Update Pantry Items:
+## Add, Delete, and Update Pantry Items:
 Users can add new items to their pantry, update existing items, and delete items they no longer need.
-# Search and Filter:
+## Search and Filter:
 Users can search for pantry items by location (e.g., fridge, top shelf, bottom shelf, cleaning supplies).
-# User Authentication: 
+## User Authentication: 
 Implemented sign-up and login functionality using Firebase Authentication to ensure each user has their own pantry items.
-# Expiry Products Notification: 
+## Expiry Products Notification: 
 The app highlights products that are expiring within a month, helping users to use them before they go bad.
 # AI Recipe Generator: 
 Using Groq, I created a random recipe generator based on the contents of the pantry.
@@ -25,7 +25,7 @@ The app uses Tailwindcss for a polished and responsive user interface.
 A user-friendly navigation system to browse between different sections of the app.
 Backend Implementation:
 
-# Firebase Integration:
+## Firebase Integration:
 I used Firebase for real-time data operations, storage, and authentication.
 # Indexed Storage and Database: 
 Implemented indexed storage to enhance data retrieval efficiency.
@@ -35,7 +35,7 @@ CI/CD and Vercel: The app is deployed on Vercel with CI/CD pipelines ensuring sm
 Challenges Faced
 # Routing and User Provider:
 Initially, I faced challenges with setting up routing and the user provider, which I overcame by learning and implementing best practices in Next.js.
-# First-time Firebase Use: 
+## First-time Firebase Use: 
 This was my first time using Firebase. I learned how to install it, set up indexed storage, and use the database and state listener for user IDs.
 Camera Uploads and GCP Vertex AI: I attempted to implement image uploads using the mobile or browser camera and classify images using GCP Vertex AI. However, due to time constraints, I had to drop this feature.
 Error Handling: Dealing with various errors, especially while integrating Firebase and implementing CRUD operations, was challenging but provided valuable learning experiences.
