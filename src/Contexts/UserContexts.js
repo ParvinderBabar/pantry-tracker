@@ -93,14 +93,14 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      //   if (user) {
-      //     setUser({ uid: user.uid, displayName: user.displayName });
-      //   } else {
-      //     setUser(null);
-      //     router.push('/auth_signup');
-      //   }
-      // });
-    });
+        if (user) {
+          setUser({ uid: user.uid, displayName: user.displayName });
+        } else {
+          setUser(null);
+          router.push('/auth_signup');
+        }
+      });
+    
     return () => unsubscribe();
   }, [router]);
 

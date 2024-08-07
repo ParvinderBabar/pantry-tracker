@@ -8,7 +8,7 @@ import { ThemeProvider } from '@mui/material';
 
 const Home = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 text-black">
       <UserProvider>
        
      

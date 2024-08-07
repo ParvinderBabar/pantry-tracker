@@ -31,3 +31,13 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Ensure no other text colors are overriding your body color */
+* {
+  color: inherit;
+}
+
+/* Optionally, force Tailwind to respect your global text color */
+.text-black {
+  color: rgb(var(--foreground-rgb)) !important;
+}
